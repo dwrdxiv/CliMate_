@@ -3,7 +3,10 @@
 "use client";
 
 import WeatherStatCard from "@/components/weatherstatCard";
-import { Droplets, Wind, Flag, Search} from "lucide-react";
+import WindIcon from '@/components/icons/windIcon';
+import HumidityIcon from '@/components/icons/humidityIcon';
+import SearchIcon from '@/components/icons/searchIcon';
+import { Droplets, Search} from "lucide-react";
 import { useState, useEffect } from "react";
 
 
@@ -92,49 +95,82 @@ export default function Home() {
           <input
             type="text"
             placeholder="Looking for a city?"
-            className="w-full h-12 p-4 rounded-4xl bg-linear-to-b from-white/70 from-70% to-gray-300/70 to-90% backdrop-blur-md border-2 border-white text-black placeholder:text-black/50 outline-none drop-shadow-md focus:ring-2 focus:ring-white/40 hover:scale-102 transition-all"
+            className="w-full h-12 p-4 rounded-4xl bg-linear-to-b from-white/70 from-70% to-gray-300/70 to-90% backdrop-blur-md border-2 border-white text-black placeholder:text-black/50 outline-none drop-shadow-md focus:ring-2  focus:ring-white/40 focus:bg-white hover:scale-102 transition-all"
           />
           <button className="absolute items-center  right-1 top-1/2 w-10 h-10 -translate-y-1/2 text-black bg-white/90 backdrop-blur-md rounded-4xl p-2 opacity-90 drop-shadow-lg hover:scale-105 transition-all">
-            <Search size={22} color="blue" />
+            <SearchIcon size={24} />
           </button>
         </div>
       </header>
 
       {/* Frame principal */}
-      <section className="flex flex-col items-center m-10 h-58 w-58 p-4 rounded-4xl text-white bg-linear-to-b from-white/50 from-70% to-gray-300/50 backdrop-blur-md border-2 border-white drop-shadow-md hover:scale-102 transition-all">
-        <h1 className="text-8xl font-bold">
+      <section className="flex flex-col items-center mt-20 m-10 h-58 w-58 rounded-4xl text-white bg-linear-to-b from-white/50 from-70% to-gray-300/50 backdrop-blur-md border-2 border-white drop-shadow-md hover:scale-102 transition-all">
+        <h1 className="text-8xl font-bold drop-shadow-lg hover:scale-105 transition-all">
           {Math.round(weather?.main?.temp)}°
         </h1>
-        <p className="text-lg font-medium">{weather?.weather?.[0]?.main}</p>
-        <p className="text-sm opacity-70 text-gray-600">{weather?.name}</p>
+        <p className="text-lg font-medium drop-shadow-md">{weather?.weather?.[0]?.main}</p>
+        <p className="text-sm opacity-70 text-gray-600 drop-shadow-md">{weather?.name}</p>
 
-        <div className="flex items-center justify-center gap-3 mt-">
+        <div className="flex items-center justify-center gap-4 mt-4">
           {/* Cajita 1: Humedad */}
           <WeatherStatCard
-            icon={Droplets}
+            icon={() => <HumidityIcon size={26} />}
             value={`${weather?.main?.humidity}%`}
           />
           {/* Cajita 2: País (Bandera) */}
           <WeatherStatCard
-            icon={Flag}
+            icon={
+              weather?.sys?.country
+                ? `https://flagsapi.com/${weather.sys.country}/flat/24.png`
+                : `https://flagsapi.com/VE/flat/24.png` /* Fallback por si acaso */
+            }
             value={weather?.sys?.country}
           />
           {/* Cajita 3: Viento */}
           <WeatherStatCard
-            icon={Wind}
+            icon={() => <WindIcon size={26} />}
             value={`${Math.round(weather?.wind?.speed * 3.6)}`} /* Conversión de m/s a Km/h */
           />
         </div>
       </section>
 
-      {/* Grid de Ciudades Populares (Filter/Map) */}
-      <section className="w-full max-w-3xl grid grid-cols-3 md:grid-cols-4 gap-4 mb-10">
-        {/* Aquí haremos el .map() de tus ciudades favoritas más adelante */}
-        <div className="p-4 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white">
-          <p className="font-bold">Caracas</p>
-          <p>28°</p>
+
+      {/* --- SECCIÓN INFERIOR: COLINA Y CIUDADES POPULARES --- */}
+      <section className="absolute bottom-0 left-0 w-full h-[30%] flex flex-col justify-end pointer-events-none">
+
+        {/* La Colina Verde */}
+        {/* Usamos rounded-t-[50%_30px] para crear una elipse suave arriba */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[140%] h-[75%] bg-linear-to-b from-green-500 to-green-700 rounded-t-[50%_40px] shadow-[inset_0_4px_10px_rgba(255,255,255,0.2)] z-10" />
+
+        {/* Contenedor del Carrusel de Ciudades */}
+        {/* pointer-events-auto reactiva los clicks de las tarjetas por encima de la colina */}
+        <div className="relative z-20 w-full overflow-x-auto no-scrollbar pb-6 px-6 pointer-events-auto">
+          <div className="flex gap-4 w-max mx-auto md:justify-center">
+
+            {/* Tarjeta de Ejemplo 1: Maracay */}
+            <div className="w-36 h-24 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 p-3 text-white flex flex-col justify-between shadow-lg transition-transform hover:-translate-y-1">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="font-bold text-sm leading-tight">Maracay</h3>
+                  <p className="text-[10px] opacity-80">Storm</p>
+                </div>
+                <img src="https://flagsapi.com/VE/flat/32.png" alt="VE" className="w-4 h-auto" />
+              </div>
+              <div className="flex justify-between items-end">
+                {/* Aquí iría el icono de tormenta de Lucide */}
+                <span className="text-xs">⚡</span>
+                <span className="text-2xl font-bold leading-none">21°</span>
+              </div>
+            </div>
+
+
+
+            {/* Añade más tarjetas aquí para probar el deslizamiento */}
+
+          </div>
         </div>
       </section>
+
     </main>
   );
 }
