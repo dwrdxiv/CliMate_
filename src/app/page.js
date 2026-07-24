@@ -89,22 +89,43 @@ export default function Home() {
 
   return (
     <main className="min-h-screen w-full bg-linear-to-b from-sky-300 from-40% to-blue-500 to-90% flex flex-col items-center p-6">
+      {/* --- NUBES ANIMADAS EN EL FONDO --- */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+
+        {/* Nube 1: Más arriba y más lenta */}
+        <img
+          src="/icons/nube1.svg"
+          alt="nube"
+          className="absolute top-16 w-36 md:w-56 opacity-90 animate-cloud-slow"
+          style={{ animationDelay: '0s' }}
+        />
+
+        {/* Nube 2: Un poco más abajo, más rápida y con un delay inicial */}
+        <img
+          src="/icons/nube2.svg"
+          alt="nube"
+          className="absolute top-44 w-28 md:w-44 opacity-80 animate-cloud-fast"
+          style={{ animationDelay: '-10s' }} /* El número negativo hace que la animación ya haya comenzado al cargar */
+        />
+
+      </div>
+      
       {/* Sección del Buscador */}
-      <header className="w-full max-w-md mt-5">
+      <header className="w-full max-w-md mt-3 z-10">
         <div className="relative group">
           <input
             type="text"
             placeholder="Looking for a city?"
-            className="w-full h-12 p-4 rounded-4xl bg-linear-to-b from-white/70 from-70% to-gray-300/70 to-90% backdrop-blur-md border-2 border-white text-black placeholder:text-black/50 outline-none drop-shadow-md focus:ring-2  focus:ring-white/40 focus:bg-white hover:scale-102 transition-all"
+            className="w-full h-12 p-4 rounded-4xl bg-linear-to-b from-white/50 from-70% to-gray-300/30 to-90% backdrop-blur-xs border-2 border-white text-black placeholder:text-black/50 outline-none drop-shadow-md focus:ring-2  focus:ring-white/40 focus:bg-white hover:scale-102 transition-all"
           />
-          <button className="absolute items-center  right-1 top-1/2 w-10 h-10 -translate-y-1/2 text-black bg-white/90 backdrop-blur-md rounded-4xl p-2 opacity-90 drop-shadow-lg hover:scale-105 transition-all">
+          <button className="absolute items-center right-1 top-1/2 w-10 h-10 -translate-y-1/2 text-black bg-white/90 backdrop-blur-md rounded-4xl p-2 opacity-90 drop-shadow-lg hover:scale-105 transition-all">
             <SearchIcon size={24} />
           </button>
         </div>
       </header>
 
       {/* Frame principal */}
-      <section className="flex flex-col items-center mt-20 m-10 h-58 w-58 rounded-4xl text-white bg-linear-to-b from-white/50 from-70% to-gray-300/50 backdrop-blur-md border-2 border-white drop-shadow-md hover:scale-102 transition-all">
+      <section className="flex flex-col items-center mt-20 m-10 h-58 w-58 rounded-4xl text-white bg-linear-to-b from-white/50 from-70% to-gray-300/30 backdrop-blur-xs border-2 border-white drop-shadow-md hover:scale-102 transition-all">
         <h1 className="text-8xl font-bold drop-shadow-lg hover:scale-105 transition-all">
           {Math.round(weather?.main?.temp)}°
         </h1>

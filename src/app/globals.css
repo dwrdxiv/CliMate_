@@ -1,1 +1,19 @@
 @import "tailwindcss";
+/* src/app/globals.css */
+
+@keyframes floatCloud {
+  0% {
+    transform: translateX(-100%); /* Empieza fuera de la pantalla por la izquierda */
+  }
+  100% {
+    transform: translateX(100vw); /* Se desplaza hasta salir por la derecha */
+  }
+}
+
+.animate-cloud-slow {
+  animation: floatCloud 35s linear infinite;
+}
+
+.animate-cloud-fast {
+  animation: floatCloud 22s linear infinite;
+}
