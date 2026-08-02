@@ -10,10 +10,36 @@
   }
 }
 
+@keyframes roulette {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); } /* Se desplaza justo hasta la mitad */
+}
+
 .animate-cloud-slow {
   animation: floatCloud 35s linear infinite;
 }
-
 .animate-cloud-fast {
   animation: floatCloud 22s linear infinite;
+}
+
+@keyframes spinSlow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spinSlow 35s linear infinite;
+}
+
+.animate-roulette {
+  /* 25 segundos es una buena velocidad base, ajústala a tu gusto */
+  animation: roulette 30s linear infinite; 
+}
+/* Pausar la animación cuando el usuario ponga el dedo o el mouse encima */
+.animate-roulette:hover {
+  animation-play-state: paused;
 }
