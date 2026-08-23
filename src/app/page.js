@@ -6,7 +6,7 @@ import WeatherStatCard from "@/components/weatherstatCard";
 import WindIcon from '@/components/icons/windIcon';
 import HumidityIcon from '@/components/icons/humidityIcon';
 import SearchIcon from '@/components/icons/searchIcon';
-import { Droplets, Search} from "lucide-react";
+import MainCardSkeleton from "@/components/MainCardSkeleton";
 import { useState, useEffect } from "react";
 
 
@@ -16,6 +16,17 @@ export default function Home() {
   const [weather, setWeather] = useState(null);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
+  const [homeWeather, setHomeWeather] = useState(null);
+  
+  const handleSelectCity = (cityData) => {
+    setWeather(cityData);
+  };
+  const handleBackHome = () => {
+    if (homeWeather) {
+      setWeather(homeWeather);
+    }
+  };
+  const isNotHome = weather && homeWeather && weather.id !== homeWeather.id;
 
   const API_KEY = process.env.NEXT_PUBLIC_WEATHER_API;
 
@@ -121,6 +132,7 @@ export default function Home() {
         );
         const data = await res.json();
         setWeather(data);
+        setHomeWeather(data); // Guardamos el clima de la ubicación inicial
       } catch (err) {
         console.error("Error al obtener clima por coordenadas, aplicando fallback...");
         runNivel3();
@@ -168,7 +180,7 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen w-full bg-linear-to-b from-sky-300 from-40% to-blue-500 to-90% flex flex-col items-center p-6">
+    <main className="relative h-screen w-full bg-linear-to-b from-sky-300 from-40% to-blue-500 to-90% flex flex-col items-center p-6 overflow-hidden select-none">
       {/* --- NUBES ANIMADAS EN EL FONDO --- */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
         <div className="absolute -top-18 -right-24 w-58 h-58 md:w-76 md:h-76 flex items-center justify-center">
@@ -200,6 +212,12 @@ export default function Home() {
           className="absolute top-64 w-40 md:w-44 opacity-80 animate-cloud-fast"
           style={{ animationDelay: '-10s' }} /* El número negativo hace que la animación ya haya comenzado al cargar */
         />
+        <img
+          src="/icons/nube1.svg"
+          alt="nube"
+          className="absolute top-49 w-38 md:w-56 opacity-90 animate-cloud-slow"
+          style={{ animationDelay: '-5s' }}
+        />
 
       </div>
       
@@ -221,34 +239,49 @@ export default function Home() {
       </header>
 
       {/* Frame principal */}
-      <section className="flex flex-col items-center mt-26 m-10 h-58 w-58 rounded-4xl text-white bg-linear-to-b from-white/50 from-70% to-gray-300/30 backdrop-blur-xs border-2 border-white drop-shadow-md hover:scale-102 transition-all">
-        <h1 className="text-8xl font-bold drop-shadow-lg hover:scale-105 transition-all">
-          {Math.round(weather?.main?.temp)}°
-        </h1>
-        <p className="text-lg font-medium drop-shadow-md">{weather?.weather?.[0]?.main}</p>
-        <p className="text-sm opacity-70 text-gray-600 drop-shadow-md">{weather?.name}</p>
+      <section className="relative z-10 flex flex-col items-center justify-center text-white text-center w-full px-4">
+      { loading || !weather?.main? (
+        <MainCardSkeleton />
+      ) : (
 
-        <div className="flex items-center justify-center gap-4 mt-4">
-          {/* Cajita 1: Humedad */}
-          <WeatherStatCard
-            icon={() => <HumidityIcon size={26} />}
-            value={`${weather?.main?.humidity}%`}
-          />
-          {/* Cajita 2: País (Bandera) */}
-          <WeatherStatCard
-            icon={
-              weather?.sys?.country
-                ? `https://flagsapi.com/${weather.sys.country}/flat/24.png`
-                : `https://flagsapi.com/VE/flat/24.png` /* Fallback por si acaso */
-            }
-            value={weather?.sys?.country}
-          />
-          {/* Cajita 3: Viento */}
-          <WeatherStatCard
-            icon={() => <WindIcon size={26} />}
-            value={`${Math.round(weather?.wind?.speed * 3.6)}Km/h`} /* Conversión de m/s a Km/h */
-          />
-        </div>
+        <section className="flex flex-col items-center mt-26 m-10 h-58 w-58 rounded-4xl text-white bg-linear-to-b from-white/50 from-70% to-gray-300/30 backdrop-blur-xs border-2 border-white drop-shadow-md transition-all">
+          <h1 className="text-8xl font-bold drop-shadow-lg hover:scale-105 transition-all">
+            {Math.round(weather?.main?.temp)}°
+          </h1>
+          <p className="text-lg font-medium drop-shadow-md">{weather?.weather?.[0]?.main}</p>
+          <p className="text-sm opacity-70 text-gray-600 drop-shadow-md">{weather?.name}</p>
+
+          <div className="flex items-center justify-center gap-4 mt-4">
+            {/* Cajita 1: Humedad */}
+            <WeatherStatCard
+              icon={() => <HumidityIcon size={26} />}
+              value={`${weather?.main?.humidity}%`}
+            />
+            {/* Cajita 2: País (Bandera) */}
+            <WeatherStatCard
+              icon={
+                weather?.sys?.country
+                  ? `https://flagsapi.com/${weather.sys.country}/flat/24.png`
+                  : `https://flagsapi.com/VE/flat/24.png` /* Fallback por si acaso */
+              }
+              value={weather?.sys?.country}
+            />
+            {/* Cajita 3: Viento */}
+            <WeatherStatCard
+              icon={() => <WindIcon size={26} />}
+              value={`${Math.round(weather?.wind?.speed * 3.6)}Km`} /* Conversión de m/s a Km/h */
+            />
+
+            
+          </div>
+          {isNotHome && (
+                  <button
+                    onClick={handleBackHome}
+                    className="mt-4 flex items-center gap-2 px-2 py-2 cursor-pointer rounded-full bg-white/30 hover:bg-white/40 backdrop-blur-md border border-white text-white text-xs font-semibold shadow-md transition-all transform hover:scale-105 active:scale-95 animate-fade-in">
+                    <img src="/icons/home.svg" alt="Home" className="w-4 h-4" />
+                  </button>
+            )}
+        </section>)}
       </section>
 
 
@@ -264,10 +297,11 @@ export default function Home() {
         {/* El contenedor que se mueve. Usamos w-max para que no se comprima */}
         <div className="flex w-max animate-roulette gap-4 z-12 pl-4 pointer-events-auto">
           
-          {/* Renderizamos la lista DOS veces para hacer el bucle infinito */}
-          {[...rouletteCities, ...rouletteCities].map((cityData, index) => (
+          {/* Renderizamos la lista CUATRO veces para hacer el bucle infinito */}
+          {[...rouletteCities, ...rouletteCities, ...rouletteCities, ...rouletteCities].map((cityData, index) => (
             <div 
-              key={`${cityData.id}-${index}`} 
+              key={`${cityData.id}-${index}`}
+              onClick={ () => handleSelectCity(cityData)}
               className="w-40 h-25 mb-6 z-15 bg-linear-to-b from-white/40 from-70% to-gray-300/60 backdrop-blur-xs border border-white drop-shadow-md rounded-2xl p-1 flex flex-col justify-between text-white cursor-pointer hover:scale-105 transition-all"
             >
               <div className="flex justify-between items-start z-15">
