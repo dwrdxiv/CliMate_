@@ -11,6 +11,8 @@ import { useState, useEffect } from "react";
 
 
 export default function Home() {
+  const [suggestions,  setSuggestions] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
   const [rouletteCities, setRouletteCities] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [weather, setWeather] = useState(null);
@@ -18,6 +20,29 @@ export default function Home() {
   const [errorMsg, setErrorMsg] = useState("");
   const [homeWeather, setHomeWeather] = useState(null);
   
+  const handleInputChange = async (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+  };
+
+  const handleSelectSuggestion = async (city) => {
+    setSearchTerm("");
+    setSuggestions([]);
+    setShowDropdown(false);
+    setLoading(true);
+    try {
+      const res = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?lat=${city.lat}&lon=${city.lon}&appid=${API_KEY}&units=metric`
+    );
+    const data = await res.json();
+    setWeather(data);
+    } catch (error) {
+      setErrorMsg("Error fetching weather data for the selected city.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSelectCity = (cityData) => {
     setWeather(cityData);
   };
@@ -58,6 +83,29 @@ export default function Home() {
     }
   };
 
+  useEffect(() => {
+    if (searchTerm.trim().length < 3) {
+      setSuggestions([]);
+      setShowDropdown(false);
+      return;
+    }
+
+    const delayDebounceFn = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(searchTerm)}&limit=5&appid=${API_KEY}`
+        );
+        const data = await res.json();
+        setSuggestions(data);
+        setShowDropdown(true);
+      } catch (error) {
+        console.error("Error fetching city suggestions:", error);
+      }
+    }, 300);
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm, API_KEY]);
+
+  
   useEffect(() => {
     async function fetchRouletteCities() {
       // Lista de ciudades geniales y variadas
@@ -222,20 +270,44 @@ export default function Home() {
       </div>
       
       {/* Sección del Buscador */}
-      <header className="w-full max-w-md mt-3 z-10">
+      <header className="relative w-full max-w-md mt-3 z-15">
         <form onSubmit={handleSearch} className="relative group">
         <input
             type="text"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={handleInputChange}
+            onFocus={() => suggestions.length > 0 && setShowDropdown(true)}
             placeholder="Looking for a city?"
-            className="w-full h-12 p-4 rounded-4xl bg-linear-to-b from-white/50 from-70% to-gray-300/30 to-90% backdrop-blur-xs border-2 border-white text-black placeholder:text-black/50 outline-none drop-shadow-md focus:ring-2  focus:ring-white/40 focus:bg-white hover:scale-102 transition-all"
+            className="w-full h-12 p-4 rounded-4xl bg-linear-to-b from-white/50 from-70% to-gray-300/30 to-90% backdrop-blur-md border-2 border-white text-black placeholder:text-black/50 outline-none drop-shadow-md focus:ring-2  focus:ring-white/40 focus:bg-white hover:scale-102 transition-all"
           />
 
           <button type="submit" className="absolute items-center right-1 top-1/2 w-10 h-10 -translate-y-1/2 text-black bg-white/90 backdrop-blur-md rounded-4xl p-2 opacity-90 drop-shadow-lg hover:scale-105 hover:cursor-pointer transition-all">
             <SearchIcon size={24} />
           </button>
         </form>
+        {showDropdown && suggestions.length > 0 && (
+          <ul className="absolute w-full max-w-md z-15 mt-1 bg-black/20 backdrop-blur-md border border-white rounded-2xl overflow-hidden shadow-2xl">
+            {suggestions.map((item, idx) => (
+              <li
+                key={`${item.lat}-${item.lon}-${idx}`}
+                onClick={() => handleSelectSuggestion(item)}
+                className="px-4 py-3 text-white/90 text-sm hover:bg-white/20 cursor-pointer flex items-center justify-between transition-colors border-b border-white/10 last:border-none"
+              >
+                <div className="flex flex-col text-left">
+                  <span className="font-semibold">{item.name}</span>
+                  <span className="text-xs text-white/60">
+                    {item.state ? `${item.state}, ` : ''}{item.country}
+                  </span>
+                </div>
+                <img
+                  src={`https://flagsapi.com/${item.country}/flat/24.png`}
+                  alt={item.country}
+                  className="w-5 h-auto rounded-xs"
+                />
+              </li>
+            ))}
+          </ul>
+        )}
       </header>
 
       {/* Frame principal */}
