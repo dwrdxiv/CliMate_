@@ -64,7 +64,7 @@ export default function Home() {
     
     try {
       const res = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(searchTerm)}&appid=${API_KEY}&units=metric`
+        `https://api.openweathermap.org/data/1.0/weather?q=${encodeURIComponent(searchTerm)}&appid=${API_KEY}&units=metric`
       );
       if (!res.ok) {
         if (res.status === 404) {
@@ -105,7 +105,7 @@ export default function Home() {
     return () => clearTimeout(delayDebounceFn);
   }, [searchTerm, API_KEY]);
 
-  
+
   useEffect(() => {
     async function fetchRouletteCities() {
       // Lista de ciudades geniales y variadas
